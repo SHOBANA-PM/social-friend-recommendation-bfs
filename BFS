@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 10
+
+int graph[MAX][MAX];
+int visited[MAX];
+int queue[MAX];
+
+int front, rear;
+
+char users[MAX][20];
+
+// Queue functions
+void enqueue(int value) {
+    queue[++rear] = value;
+}
+
+int dequeue() {
+    return queue[front++];
+}
+
+int isEmpty() {
+    return front > rear;
+}
+
+// Find index of user
+int getIndex(char name[], int n) {
+    int i;
+    for (i = 0; i < n; i++) {
+        if (strcmp(users[i], name) == 0)
+            return i;
+    }
+    return -1;
+}
+
+// BFS recommendation
+void recommendFriends(int start, int n) {
+    int level[MAX];
+    int i;
+
+    // Initialize
+    for (i = 0; i < n; i++) {
+        visited[i] = 0;
+        level[i] = -1;
+    }
+
+    front = 0;
+    rear = -1;
+
+    enqueue(start);
+    visited[start] = 1;
+    level[start] = 0;
+
+    printf("\nRecommended Friends:\n");
+
+    while (!isEmpty()) {
+        int current = dequeue();
+
+        for (i = 0; i < n; i++) {
+            if (graph[current][i] == 1 && visited[i] == 0) {
+                enqueue(i);
+                visited[i] = 1;
+                level[i] = level[current] + 1;
+
+                // Only level 2
+                if (level[i] == 2) {
+                    printf("%s\n", users[i]);
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    int n, i, j;
+    char inputUser[20];
+
+    printf("Enter number of users (max %d): ", MAX);
+    scanf("%d", &n);
+
+    if (n > MAX) {
+        printf("Limit exceeded!\n");
+        return 0;
+    }
+
+    printf("Enter user names:\n");
+    for (i = 0; i < n; i++) {
+        scanf("%s", users[i]);
+    }
+
+    printf("\nEnter adjacency matrix:\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+    }
+
+    printf("\nEnter user: ");
+    scanf("%s", inputUser);
+
+    int start = getIndex(inputUser, n);
+
+    if (start == -1) {
+        printf("User not found!\n");
+    } else {
+        recommendFriends(start, n);
+    }
+
+    return 0;
+}
